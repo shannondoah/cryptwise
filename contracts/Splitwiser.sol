@@ -5,7 +5,6 @@ import "openzeppelin/escrow"
 contract Splitwiser {
 
   constructor () {
-    // reset address in the registry contract?
   }
 
   getExpenses()

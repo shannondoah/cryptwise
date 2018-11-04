@@ -1,18 +1,24 @@
 pragma solidity ^0.4.24;
 
-import "ownable";
+import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
 contract SplitwiserRegistry is Ownable {
-  mapping(string => address) public registeredContracts;
+  address public registeredContract;
+  address[] public previousRegisteredContracts;
 
-  event RegisteredContract
+  event RegisteredContract(address indexed _address);
 
-  constructor () {
-
+  function registerContract(address _address) onlyOwner {
+    if(_address != registeredContract) {
+      previousRegisteredContracts.push(registeredContract);
+      registeredContract = _address;
+      emit RegisteredContract(_address);
+    }
   }
 
-  function registerContract(string _name, address _address) onlyOwner {
-    registeredContracts[_name] = _address;
-    emit RegisteredContract;
+  // This is only here as a fallback, this contract is not
+  // intended to be used as a delegator
+  function() {
+    if(!registeredContract.delegatecall(msg.data)) throw;
   }
 }
