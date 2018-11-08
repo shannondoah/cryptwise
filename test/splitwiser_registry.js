@@ -3,14 +3,14 @@ const Splitwiser = artifacts.require("./Splitwiser.sol");
 
 contract('SplitwiserRegistry', (accounts) => {
 
-    let splitwiserRegistry;
-    const splitwiser = await Splitwiser.deployed();
+    let splitwiserRegistry, splitwiser;
 
     assert.eventOfType = function(response, eventName) {
         return this.equal(response.logs[0].event, eventName, eventName + ' event should fire.');
     }
 
     it("should assert true", async () => {
+        splitwiser = await Splitwiser.deployed();
         splitwiserRegistry = await SplitwiserRegistry.deployed();
         assert(splitwiserRegistry !== undefined, "Splitwiser Registry is deployed");
     });

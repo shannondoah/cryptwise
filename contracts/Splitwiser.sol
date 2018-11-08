@@ -1,51 +1,54 @@
 pragma solidity ^0.4.24;
 
-import "openzeppelin/escrow"
+import "openzeppelin-solidity/contracts/payment/escrow/Escrow.sol";
+import "./Database.sol";
 
 contract Splitwiser {
+  Database public data;
 
-  constructor () {
+  constructor (address _dbAddress) public {
+    data = Database(_dbAddress);
   }
 
-  getExpenses()
+  function getExpenses() public {}
 
-  getBalancesOf(uint256 _userId)
+  function getBalancesOf(uint256 _userId) public {}
 
-  getTotalBalanceOf(uint256 _userId)
+  function getTotalBalanceOf(uint256 _userId) public returns (uint256) {}
 
-  getFundsInEscrow(uint256 _userId) returns (uint256) {
-    account = accounts[_userId]
-    return fundsInEscrow[account];
+  function getFundsInEscrow(uint256 _userId) public returns (uint256) {
+    address account = data.accounts(_userId);
+    return data.fundsInEscrow(account);
   }
 
-  recordExpense(
+  function recordExpense(
     uint256 _amount,
     uint64 _created,
     string _description,
     uint256 _payor,
     uint256[] _debtors
-  ) {
+  ) public {
     // register the expense and then split the amounts evenly between debtors
   }
 
-  registerAccount(uint256 _userId) {
-    accounts[_userId] = msg.sender;
+  function registerAccount(uint256 _userId) public {
+    data.setAccount(_userId, msg.sender);
   }
 
-  recordPayment(uint256 _from, uint256 _to) {
+ function  recordPayment(uint256 _from, uint256 _to) public {
     // for off-chain settlements
   }
 
 
   // for following two methods, ensure recipient has registered an address,
   // otherwise return an error and force them to settle off-chain
-  settleDebt(uint256 _userId) external payable {
+  function settleDebt(uint256 _userId) external payable {
     // transfer value to contract
     // contract sets a withdrawal balance for _userId
     // update totalBalanceOf and balancesOf[msg.sender][_userId]
   }
 
-  settleAllDebts() {
+  function settleAllDebts() public {
     // ensure value sent is equal to totalBalanceOf
     // transfer value to contract to hold in escrow
     // need to find some safe way to loop through user’s balancesOf,
@@ -53,8 +56,8 @@ contract Splitwiser {
     // withdrawal for each person owed
   }
 
-  withdrawFunds(uint256 _amount) {
-    fundsInEscrow[msg.sender]
+  function withdrawFunds(uint256 _amount) public {
+    data.fundsInEscrow(msg.sender);
   }
 
 }

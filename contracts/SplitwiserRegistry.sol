@@ -8,7 +8,7 @@ contract SplitwiserRegistry is Ownable {
 
   event RegisteredContract(address indexed _address);
 
-  function registerContract(address _address) onlyOwner {
+  function registerContract(address _address) onlyOwner public {
     if(_address != registeredContract) {
       previousRegisteredContracts.push(registeredContract);
       registeredContract = _address;
@@ -18,7 +18,7 @@ contract SplitwiserRegistry is Ownable {
 
   // This is only here as a fallback, this contract is not
   // intended to be used as a delegator
-  function() {
-    if(!registeredContract.delegatecall(msg.data)) throw;
+  function() public {
+    if(!registeredContract.delegatecall(msg.data)) revert();
   }
 }
