@@ -3,21 +3,28 @@ pragma solidity ^0.4.24;
 import "openzeppelin-solidity/contracts/payment/escrow/Escrow.sol";
 import "./Database.sol";
 
-contract Splitwiser {
+contract Splitwiser is Escrow {
   Database public data;
 
   constructor (address _dbAddress) public {
     data = Database(_dbAddress);
   }
 
+  modifier registeredAccount {
+    // ensure msg.sender is a registered account (see Database)
+    _;
+  }
+
   function getExpenses() public {}
+
+  function getRegisteredAccount(uint256 _userId) public returns (address) {}
 
   function getBalancesOf(uint256 _userId) public {}
 
   function getTotalBalanceOf(uint256 _userId) public returns (uint256) {}
 
   function getFundsInEscrow(uint256 _userId) public returns (uint256) {
-    address account = data.accounts(_userId);
+    address account = data.registeredAccounts(_userId);
     return data.fundsInEscrow(account);
   }
 
