@@ -14,12 +14,17 @@ contract Database {
     uint256[] owedBy;
   }
 
+  // User id (account who created expense) to Expense id
+  mapping(uint256 => uint256[]) public ownedExpenses;
+
+  // User id (involved as paid by or owed by) to Expense id
+  mapping(uint256 => uint256[]) public involvedExpenses;
+
   // Use account ids in place of addresses in order to enable a user to record transactions including users that may not have registered yet
   mapping(uint256 => address) public registeredAccounts;
+  // Bi-directional mapping
   mapping(address => uint256) public addressToUserIds;
 
-  // User id (account who created expense) to Expense id
-  mapping(uint256 => uint256) public ownedExpenses;
   // uint256 keys represent user ids , ex:
   // user1: { owes user2: 10 }, { owes user3: 20 }
   // user2: { user1: -10 } , {user3: 10}
@@ -47,7 +52,7 @@ contract Database {
 
   // modifier to ensure only the registered contract is attempting to make changes to the Database
   modifier validCaller {
-    require(msg.sender == getRegisteredContract(), "Deprecated Splitwiser contract may not make updates to the database, refer to SplitwiserRegistry for latest version.");
+    require(msg.sender == getRegisteredContract(), "Only registered Splitwiser contract may make updates to the database, refer to SplitwiserRegistry for latest version.");
     _;
   }
 
@@ -67,7 +72,8 @@ contract Database {
   function addExpense(uint256 _amount, string _description, uint256 _paidBy, uint256[] _owedBy) external validCaller {
     // verify owedBy length < 100
     uint256 newExpenseId = expenses.push(Expense(_amount, uint64(now), _description, _paidBy, _owedBy)) - 1;
-    ownedExpenses[addressToUserIds[msg.sender]] = newExpenseId;
+
+    ownedExpenses[addressToUserIds[msg.sender]].push(newExpenseId);
     emit ExpenseAdded(newExpenseId, _amount, _description);
   }
 
