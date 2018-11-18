@@ -114,10 +114,35 @@ contract('Database', (accounts) => {
 
 
     // =========== BALANCES
-    it("should store the balances of each user", async () => {
+
+    it("should adjust each user to user balance on expense create", async () => {
+
+    })
+
+    it("should be able to store a negative balance", async () => {
+
+    })
+
+    it("should be able to read the balances of each user", async () => {
         // ensure that a mapping of mappings works... may need to use
         // the custom getter from other contract to actually read the
         // values though
+    });
+
+    it("should be able to read the balance between two specific users", async () => {
+
+    });
+
+    it("should adjust balances when an off-chain payment is recorded", async () => {
+
+    })
+
+    it("should adjust balances when a deposit is made", async () => {
+
+    })
+
+    it("should set the total balance for each user when an expense is created or payment or deposit made", async () => {
+        // this is mostly for easy reading by the app
     });
 
     it("should also store the total balance for each user", async () => {

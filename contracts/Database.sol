@@ -3,6 +3,8 @@ pragma solidity ^0.4.24;
 import "./SplitwiserRegistry.sol";
 
 contract Database {
+  // For calculating balances
+  // using SafeMath for uint256; <- would also need to import this contract
   SplitwiserRegistry public registry;
   Expense[] public expenses;
 
@@ -30,11 +32,9 @@ contract Database {
   // user2: { user1: -10 } , {user3: 10}
   // user3: {user1: -20}, {user2: -10}
   // positive balance indicates primary owes them, negative indicates that the primary is owed
-  mapping(uint256 => mapping(uint256 => uint256)) public balancesOf;
+  mapping(uint256 => mapping(uint256 => int) public balancesOf;
 
-  mapping(uint256 => uint256) public totalBalanceOf;
-
-  mapping(address => uint256) public fundsInEscrow;
+  mapping(uint256 => int) public totalBalanceOf;
 
   event AccountSet(
     uint256 indexed _userId,
