@@ -34,6 +34,7 @@ contract Splitwiser is Escrow {
     string _description,
     uint256 _paidBy,
     uint256[] _owedBy) external {
+    require(_owedBy.length < 100, "Payment splitting limited to 99 participants");
     data.addExpense(_amount, _currency, _description, _paidBy, _owedBy);
   }
 
