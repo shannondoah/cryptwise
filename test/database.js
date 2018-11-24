@@ -61,6 +61,16 @@ contract('Database', (accounts) => {
         }
     });
 
+    // Maybe an admin could unset a 'hacked' address
+    it("should not be able to reset the user id", async () => {
+        try {
+            await splitwiser.registerAccount(2, { from: alice });
+            assert(false, "Alice could register her address to user id 2");
+        } catch (e) {
+            assert(true, "Alice could not register her address to user id 2");
+        }
+    });
+
     it("should be able to get a user id by eth account", async () => {
         acc = await database.addressToUserIds.call(alice);
         assert(acc.toNumber() === 1, "Alice is registered to user id 1");
@@ -77,16 +87,6 @@ contract('Database', (accounts) => {
             assert(false, "Bob could register his address to user id 1");
         } catch (e) {
             assert(true, "Bob could not register his address to user id 1");
-        }
-    });
-
-    // Maybe an admin could unset a 'hacked' address
-    it("should not be able to reset the user id", async () => {
-        try {
-            await splitwiser.registerAccount(2, { from: alice });
-            assert(false, "Alice could register her address to user id 2");
-        } catch (e) {
-            assert(true, "Alice could not register her address to user id 2");
         }
     });
 
@@ -133,8 +133,7 @@ contract('Database', (accounts) => {
 
     it("should set an expense owner when creating an expense", async () => {
         let ownedExps = await database.ownedExpensesFor(1);
-        console.log(ownedExps);
-        // see ownedExpenses
+        assert(ownedExps.length == 2, "User id 1 created 2 expenses");
     });
 
     it("should have a function that returns all expense ids/indices created by that user", async () => {

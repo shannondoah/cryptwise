@@ -76,27 +76,43 @@ contract Database is Ownable {
     registeredContract = registry.registeredContract();
   }
 
-  // Do I need to create an interface to access these methods?
-  // https://ethereum.stackexchange.com/questions/46335/change-state-variable-content-in-contract-a-from-contract-b
   // Should only be able to set account ONCE, and user Ids should not be their rails incremented id but a random number and length to avoid pre-registering accounts to userids
   function setAccount(uint256 _userId) external onlyRegisteredContract {
     require(registeredAccounts[_userId] == address(0), "User must not have a registered address");
+    require(addressToUserIds[tx.origin] == 0, "Address must not be registered to another user id");
     registeredAccounts[_userId] = tx.origin;
     addressToUserIds[tx.origin] = _userId;
 
     emit AccountSet(_userId, tx.origin);
   }
 
-  // function addAxpense(uint256 _amount) external onlyRegisteredContract {
-
-  // }
-
-  function addExpense(uint256 _amount, string _currency, string _description, uint256 _paidBy, uint256[] _owedBy) external onlyRegisteredContract {
-    // verify owedBy length < 100
-    // verify string length also < 100
-    uint256 newExpenseId = expenses.push(Expense(_amount, _currency, uint64(now), _description, _paidBy, _owedBy)) - 1;
+  function addExpense(
+    uint256 _amount,
+    string _currency,
+    string _description,
+    uint256 _paidBy,
+    uint256[] _owedBy) external onlyRegisteredContract {
+    uint256 newExpenseId = expenses.push(
+      Expense(
+        _amount,
+        _currency,
+        uint64(now),
+        _description,
+        _paidBy,
+        _owedBy
+      )
+    ) - 1;
 
     ownedExpenses[addressToUserIds[tx.origin]].push(newExpenseId);
+
+    // uint256 splitAmount = _amount / _owedBy.length;
+
+    for (let i = 0; i < _owedBy.length; i++) {
+      // involvedExpenses[_owedBy[i]].push(newExpenseId);
+      // balancesOf[_owedBy[i]][_paidBy].add(splitAmount);
+      // balancesOf[_paidBy][_owedBy[i]].subtract(splitAmount);
+    }
+
     emit ExpenseAdded(newExpenseId, _amount, _description);
   }
 
