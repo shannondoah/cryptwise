@@ -2,14 +2,15 @@ pragma solidity ^0.4.24;
 
 import "./SplitwiserRegistry.sol";
 
-contract Database {
-  // For calculating balances
+contract Database is Ownable {
   // using SafeMath for uint256; <- would also need to import this contract
   SplitwiserRegistry public registry;
+  address public registeredContract;
   Expense[] public expenses;
 
   struct Expense {
     uint256 amount;
+    string currency;
     uint64 created;
     string description;
     uint256 paidBy;
@@ -22,7 +23,9 @@ contract Database {
   // User id (involved as paid by or owed by) to Expense id
   mapping(uint256 => uint256[]) public involvedExpenses;
 
-  // Use account ids in place of addresses in order to enable a user to record transactions including users that may not have registered yet
+  // Use account ids in place of addresses in order to enable a user
+  // to record transactions including users that may not have
+  // registered yet
   mapping(uint256 => address) public registeredAccounts;
   // Bi-directional mapping
   mapping(address => uint256) public addressToUserIds;
@@ -31,8 +34,9 @@ contract Database {
   // user1: { owes user2: 10 }, { owes user3: 20 }
   // user2: { user1: -10 } , {user3: 10}
   // user3: {user1: -20}, {user2: -10}
-  // positive balance indicates primary owes them, negative indicates that the primary is owed
-  mapping(uint256 => mapping(uint256 => int) public balancesOf;
+  // positive balance indicates primary owes them,
+  // negative indicates that the primary is owed
+  mapping(uint256 => mapping(uint256 => int)) public balancesOf;
 
   mapping(uint256 => int) public totalBalanceOf;
 
@@ -48,33 +52,53 @@ contract Database {
 
   constructor (address _registryAddress) public {
     registry = SplitwiserRegistry(_registryAddress);
+    registeredContract = registry.registeredContract();
   }
 
-  // modifier to ensure only the registered contract is attempting to make changes to the Database
-  modifier validCaller {
-    require(msg.sender == getRegisteredContract(), "Only registered Splitwiser contract may make updates to the database, refer to SplitwiserRegistry for latest version.");
+  modifier onlyRegistry {
+    require(msg.sender == address(registry), "This function can only be executed by the registry contract");
     _;
   }
 
-  function getRegisteredContract() public constant returns (address) {
-    return registry.registeredContract();
+  // modifier to ensure only the registered contract is attempting to make changes to the Database
+  modifier onlyRegisteredContract {
+    require(msg.sender == address(registeredContract), "Only registered Splitwiser contract may make updates to the database, refer to SplitwiserRegistry for latest version.");
+    _;
+  }
+
+  // ---- GETTERS ----
+  function ownedExpensesFor(uint256 _userId) view public returns(uint256[]) {
+    return ownedExpenses[_userId];
+  }
+
+  // ---- SETTERS ----
+  function setRegisteredContract() external onlyRegistry {
+    registeredContract = registry.registeredContract();
   }
 
   // Do I need to create an interface to access these methods?
   // https://ethereum.stackexchange.com/questions/46335/change-state-variable-content-in-contract-a-from-contract-b
-  function setAccount(uint256 _userId, address _address) external validCaller {
-    registeredAccounts[_userId] = _address;
-    addressToUserIds[_address] = _userId;
+  // Should only be able to set account ONCE, and user Ids should not be their rails incremented id but a random number and length to avoid pre-registering accounts to userids
+  function setAccount(uint256 _userId) external onlyRegisteredContract {
+    require(registeredAccounts[_userId] == address(0), "User must not have a registered address");
+    registeredAccounts[_userId] = tx.origin;
+    addressToUserIds[tx.origin] = _userId;
 
-    emit AccountSet(_userId, _address);
+    emit AccountSet(_userId, tx.origin);
   }
 
-  function addExpense(uint256 _amount, string _description, uint256 _paidBy, uint256[] _owedBy) external validCaller {
-    // verify owedBy length < 100
-    uint256 newExpenseId = expenses.push(Expense(_amount, uint64(now), _description, _paidBy, _owedBy)) - 1;
+  // function addAxpense(uint256 _amount) external onlyRegisteredContract {
 
-    ownedExpenses[addressToUserIds[msg.sender]].push(newExpenseId);
+  // }
+
+  function addExpense(uint256 _amount, string _currency, string _description, uint256 _paidBy, uint256[] _owedBy) external onlyRegisteredContract {
+    // verify owedBy length < 100
+    // verify string length also < 100
+    uint256 newExpenseId = expenses.push(Expense(_amount, _currency, uint64(now), _description, _paidBy, _owedBy)) - 1;
+
+    ownedExpenses[addressToUserIds[tx.origin]].push(newExpenseId);
     emit ExpenseAdded(newExpenseId, _amount, _description);
   }
+
 
 }

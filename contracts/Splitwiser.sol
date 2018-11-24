@@ -23,23 +23,22 @@ contract Splitwiser is Escrow {
 
   function getTotalBalanceOf(uint256 _userId) public returns (uint256) {}
 
-  function getFundsInEscrow(uint256 _userId) public returns (uint256) {
-    address account = data.registeredAccounts(_userId);
-    return data.fundsInEscrow(account);
-  }
+  // function getFundsInEscrow(uint256 _userId) public returns (uint256) {
+  //   address account = data.registeredAccounts(_userId);
+  //   return data.fundsInEscrow(account);
+  // }
 
   function recordExpense(
     uint256 _amount,
-    uint64 _created,
+    string _currency,
     string _description,
-    uint256 _payor,
-    uint256[] _debtors
-  ) public {
-    // register the expense and then split the amounts evenly between debtors
+    uint256 _paidBy,
+    uint256[] _owedBy) external {
+    data.addExpense(_amount, _currency, _description, _paidBy, _owedBy);
   }
 
   function registerAccount(uint256 _userId) public {
-    data.setAccount(_userId, msg.sender);
+    data.setAccount(_userId);
   }
 
  function  recordPayment(uint256 _from, uint256 _to) public {
@@ -64,7 +63,7 @@ contract Splitwiser is Escrow {
   }
 
   function withdrawFunds(uint256 _amount) public {
-    data.fundsInEscrow(msg.sender);
+    /// see Escrow.sol
   }
 
 }
