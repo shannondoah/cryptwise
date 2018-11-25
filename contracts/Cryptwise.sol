@@ -14,7 +14,11 @@ contract Cryptwise is Ownable {
     return address(_escrow);
   }
 
-  function setEscrow(address _address) internal {
+  /**
+    Would only need to use this in future versions of the
+    contract, to sync up the old escrow
+  */
+  function setEscrow(address _address) external onlyOwner {
     _escrow = Escrow(_address);
   }
 
@@ -23,4 +27,16 @@ contract Cryptwise is Ownable {
     _escrow.transferPrimary(_address);
   }
 
+  function paymentsFor(address _payee) external view returns(uint256) {
+    uint256 payments = _escrow.depositsOf(_payee);
+    return payments;
+  }
+
+  function deposit(address _payee) external payable {
+    _escrow.deposit.value(msg.value)(_payee);
+  }
+
+  function withdraw() external {
+    _escrow.withdraw(msg.sender);
+  }
 }
