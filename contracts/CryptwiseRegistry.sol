@@ -1,25 +1,25 @@
 pragma solidity ^0.4.24;
 
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
-import "./Database.sol";
+import "openzeppelin-solidity/contracts/payment/escrow/Escrow.sol";
 
-contract SplitwiserRegistry is Ownable {
-  Database public database;
+contract CryptwiseRegistry is Ownable {
+  Escrow private escrow;
   address public registeredContract;
   address[] public previousRegisteredContracts;
 
   event RegisteredContract(address indexed _address);
 
-  function setDatabase(address _address) onlyOwner external {
-    database = Database(_address);
+  function setEscrow(address _address) onlyOwner external {
+    escrow = Escrow(_address);
   }
 
   function registerContract(address _address) onlyOwner external {
     if(_address != registeredContract) {
       previousRegisteredContracts.push(registeredContract);
       registeredContract = _address;
-      if (address(database) != address(0)) {
-        database.setRegisteredContract();
+      if (address(escrow) != address(0)) {
+        Cryptwise(registeredContract).transferPrimary(_address);
       }
       emit RegisteredContract(_address);
     }

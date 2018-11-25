@@ -1,6 +1,5 @@
-var SplitwiserRegistry = artifacts.require("./SplitwiserRegistry.sol");
-var Database = artifacts.require("./Database.sol");
+var CryptwiseRegistry = artifacts.require("./CryptwiseRegistry.sol");
 
 module.exports = function(deployer) {
-  deployer.deploy(SplitwiserRegistry);
+  deployer.deploy(CryptwiseRegistry);
 };
