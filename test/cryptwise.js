@@ -111,6 +111,9 @@ contract('Cryptwise', (accounts) => {
         const balance1 = await web3.eth.getBalance(alice)
         await cryptwise.withdraw()
         const balance2 = await web3.eth.getBalance(alice)
-        assert(balance2 > balance1, "Alice's balance increased after withdrawing her funds");
+        // Converted to number because big number comparisons were not
+        // working when the value increased the # of decimal points,
+        // ex: 98 > 96 was true, but 100 > 98 was false
+        assert(balance2.toNumber() > balance1.toNumber(), "Alice's balance increased after withdrawing her funds");
     });
 });
